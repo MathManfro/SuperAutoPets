@@ -104,4 +104,98 @@ public class ServidorSAP : MonoBehaviour
             return xmlBruto;
         }
     }
+
+    public static int idPartidaAtual = 0;
+
+    public void ChamarNovaPartidaPeloBotao()
+    {
+        if (idJogadorLogado > 0)
+        {
+            Debug.Log("Iniciando uma nova partida no servidor...");
+            StartCoroutine(CriarPartida());
+        }
+        else
+        {
+            Debug.LogWarning("Calma lá! Você precisa fazer o Login antes de jogar.");
+        }
+    }
+
+    IEnumerator CriarPartida()
+    {
+        string urlCompleta = urlBase + "/CriarPartida";
+
+        WWWForm formulario = new WWWForm();
+
+        using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Deu ruim na conexão: " + www.error);
+            }
+            else
+            {
+                string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
+
+                if (int.TryParse(respostaLimpa, out int idGerado))
+                {
+                    idPartidaAtual = idGerado;
+                    Debug.Log("PARTIDA CRIADA COM SUCESSO! O ID da Partida é: " + idPartidaAtual);
+                }
+                else
+                {
+                    Debug.LogWarning("Erro ao criar partida: " + respostaLimpa);
+                }
+            }
+        }
+    }
+
+    public TMP_InputField inputNomeEquipe;
+
+    public void ChamarSalvarEquipePeloBotao()
+    {
+        if (idJogadorLogado > 0 && idPartidaAtual > 0)
+        {
+            string nomeDaEquipeDigitado = inputNomeEquipe.text;
+
+            int vidaInicial = 5;
+            int rodadaInicial = 1;
+
+            Debug.Log("Salvando a equipe '" + nomeDaEquipeDigitado + "' no servidor...");
+            StartCoroutine(SalvarEquipe(idJogadorLogado, idPartidaAtual, nomeDaEquipeDigitado, vidaInicial, rodadaInicial));
+        }
+        else
+        {
+            Debug.LogWarning("Opa! Você precisa logar e criar uma partida antes de salvar a equipe.");
+        }
+    }
+
+    IEnumerator SalvarEquipe(int jogador, int partida, string nomeEquipe, int vida, int rodada)
+    {
+        string urlCompleta = urlBase + "/SalvarEquipe";
+
+        WWWForm formulario = new WWWForm();
+
+        formulario.AddField("jogador", jogador);
+        formulario.AddField("partida", partida);
+        formulario.AddField("nomeEquipe", nomeEquipe);
+        formulario.AddField("vida", vida);
+        formulario.AddField("rodada", rodada);
+
+        using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Deu ruim na conexão: " + www.error);
+            }
+            else
+            {
+                string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
+                Debug.Log("Resposta do Banco: " + respostaLimpa);
+            }
+        }
+    }
 }
