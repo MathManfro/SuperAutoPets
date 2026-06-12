@@ -20,7 +20,20 @@ public class ServidorSAP : MonoBehaviour
     public TMP_InputField inputUsuario;
     public TMP_InputField inputSenha;
 
+    [Header("Fluxo de Telas (UI)")]
+    public GameObject telaLogin;
+    public GameObject telaLobby;
+    public GameObject telaJogoPrincipal;
+
     public static int idJogadorLogado = 0;
+
+    private void Start()
+    {
+        // Assim que o jogo abre, liga só o Login e esconde o resto!
+        telaLogin.SetActive(true);
+        telaLobby.SetActive(false);
+        telaJogoPrincipal.SetActive(false);
+    }
 
     public void ChamarCadastroPeloBotao()
     {
@@ -90,6 +103,8 @@ public class ServidorSAP : MonoBehaviour
                 {
                     idJogadorLogado = idRecebido;
                     Debug.Log("LOGIN APROVADO! O seu ID de jogador agora é: " + idJogadorLogado);
+                    telaLogin.SetActive(false);
+                    telaLobby.SetActive(true);
                 }
                 else
                 {
@@ -203,6 +218,11 @@ public class ServidorSAP : MonoBehaviour
             {
                 string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
                 Debug.Log("Resposta do Banco: " + respostaLimpa);
+                if (respostaLimpa.Contains("Sucesso"))
+                {
+                    telaLobby.SetActive(false);
+                    telaJogoPrincipal.SetActive(true);
+                }
             }
         }
     }
