@@ -136,11 +136,11 @@ public class BattleSimulator : MonoBehaviour
         if (vidasAtuais <= 0)
         {
             Debug.Log(" GAME OVER! Suas vidas acabaram de vez.");
-            // Aqui futuramente você pode abrir uma tela de derrota total
+
         }
         else
         {
-            // Se ainda tem vida, espera 3 segundos e reconstrói a loja
+
             StartCoroutine(VoltarParaLoja());
         }
     }
@@ -151,33 +151,29 @@ public class BattleSimulator : MonoBehaviour
 
         Debug.Log(" Retornando para a Loja...");
 
-        // 1. Passa de rodada
         rodadaAtual++;
         EconomyManager.Instance.ResetarOuro(11);
 
-        // 2. Limpa qualquer resto do inimigo que tenha sobrado por empate
         foreach (Transform slot in panelEquipeInimigo)
         {
             if (slot.childCount > 0) Destroy(slot.GetChild(0).gameObject);
         }
 
-        // 3. CURA E RESSUSCITA SEU TIME
         foreach (Transform slot in panelEquipePlayer)
         {
             if (slot.childCount > 0)
             {
                 PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
-                pet.gameObject.SetActive(true); // Reativa o bicho na tela
+                pet.gameObject.SetActive(true);
 
                 if (poderesOriginais.ContainsKey(pet))
                 {
-                    pet.poderAtual = poderesOriginais[pet]; // Devolve o poder exato de antes da batalha
+                    pet.poderAtual = poderesOriginais[pet];
                 }
-                pet.GetComponent<PetDisplay>().Setup(pet.data); // Atualiza o texto do Display
+                pet.GetComponent<PetDisplay>().Setup(pet.data);
             }
         }
 
-        // 4. Alterna as telas de UI de volta para o modo Loja
         panelInimigo.SetActive(false);
         panelLoja.SetActive(true);
         botaoRoletar.SetActive(true);
@@ -185,8 +181,12 @@ public class BattleSimulator : MonoBehaviour
 
         AtualizarBarraUI();
 
-        // 5. Dá o gatilho automático para a loja atualizar de graça no novo round!
         GetComponent<ShopManager>().RoletarLoja();
+
+        if (ServidorSAP.Instance != null)
+        {
+            ServidorSAP.Instance.ChamarAtualizarStatus(vidasAtuais, rodadaAtual);
+        }
     }
 
     public void AtualizarBarraUI()

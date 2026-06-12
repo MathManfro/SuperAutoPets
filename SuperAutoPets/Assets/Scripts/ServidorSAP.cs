@@ -274,4 +274,41 @@ public class ServidorSAP : MonoBehaviour
             }
         }
     }
+
+    // --- FUNÇÃO PARA ATUALIZAR O SAVE ---
+    public void ChamarAtualizarStatus(int vidaAtual, int rodadaAtual)
+    {
+        if (idJogadorLogado > 0 && idPartidaAtual > 0)
+        {
+            Debug.Log($"Salvando progresso no Banco: Rodada {rodadaAtual} / Vida {vidaAtual}...");
+            StartCoroutine(AtualizarStatusEquipeCoroutine(idJogadorLogado, idPartidaAtual, vidaAtual, rodadaAtual));
+        }
+    }
+
+    IEnumerator AtualizarStatusEquipeCoroutine(int jogador, int partida, int novaVida, int novaRodada)
+    {
+        string urlCompleta = urlBase + "/AtualizarStatusEquipe";
+
+        WWWForm formulario = new WWWForm();
+
+        formulario.AddField("jogador", jogador);
+        formulario.AddField("partida", partida);
+        formulario.AddField("novaVida", novaVida);
+        formulario.AddField("novaRodada", novaRodada);
+
+        using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Deu ruim na conexão: " + www.error);
+            }
+            else
+            {
+                string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
+                Debug.Log("Resposta do Banco: " + respostaLimpa);
+            }
+        }
+    }
 }
