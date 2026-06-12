@@ -2,14 +2,26 @@
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Networking;
+using TMPro;
 
 public class ServidorSAP : MonoBehaviour
 {
     private string urlBase = "http://localhost:58747/WSJogador.asmx";
 
-    void Start()
+    public TMP_InputField inputNome;
+    public TMP_InputField inputUsuario;
+    public TMP_InputField inputSenha;
+
+
+    public void ChamarCadastroPeloBotao()
     {
-        StartCoroutine(CadastrarJogador("Artur da Unity", "artur_unity", "senha123"));
+        string nomeDigitado = inputNome.text;
+        string usuarioDigitado = inputUsuario.text;
+        string senhaDigitada = inputSenha.text;
+
+        Debug.Log("Enviando dados do formulário...");
+
+        StartCoroutine(CadastrarJogador(nomeDigitado, usuarioDigitado, senhaDigitada));
     }
 
     IEnumerator CadastrarJogador(string nomeParametro, string usuarioParametro, string senhaParametro)
@@ -17,7 +29,6 @@ public class ServidorSAP : MonoBehaviour
         string urlCompleta = urlBase + "/CadastrarJogador";
 
         WWWForm formulario = new WWWForm();
-
         formulario.AddField("nome", nomeParametro);
         formulario.AddField("usuario", usuarioParametro);
         formulario.AddField("senha", senhaParametro);
