@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6000936e7e400794896119e3d735f0da, type: 3}
   m_Name: Maca
   m_EditorClassIdentifier: Assembly-CSharp::EntityData
-  cod: 10
+  cod: 3
   nome: "Ma\xE7\xE3"
   poderBase: 1
   valor: 2
   icon: {fileID: -4218819425404330313, guid: 0d95cc1bbecfccb4d80bcb7ff7495276, type: 3}
   isFood: 1
+  tier: 1
+  gatilho: 0
+  forcaDaHabilidade: 0

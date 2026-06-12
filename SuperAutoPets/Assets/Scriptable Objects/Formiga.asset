@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6000936e7e400794896119e3d735f0da, type: 3}
   m_Name: Formiga
   m_EditorClassIdentifier: Assembly-CSharp::EntityData
-  cod: 2
+  cod: 1
   nome: Formiga
   poderBase: 2
   valor: 2

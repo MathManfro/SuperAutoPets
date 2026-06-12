@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6000936e7e400794896119e3d735f0da, type: 3}
   m_Name: Peixe
   m_EditorClassIdentifier: Assembly-CSharp::EntityData
-  cod: 1
+  cod: 4
   nome: Peixe
   poderBase: 3
   valor: 2

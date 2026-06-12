@@ -29,6 +29,8 @@ public class DropSlot : MonoBehaviour, IDropHandler
                 int ouroGanho = petArrastado.nivelAtual; // Ganha ouro = nível do pet
                 EconomyManager.Instance.GanharOuro(ouroGanho);
                 Debug.Log($" {petArrastado.data.nome} vendido na loja por {ouroGanho} de ouro!");
+                if (ServidorSAP.Instance != null)
+                    ServidorSAP.Instance.VenderPetDireto(petArrastado.data.cod, petArrastado.nivelAtual);
 
                 List<PetInstance> equipeAtual = new List<PetInstance>();
                 foreach (Transform slot in draggable.parentAfterDrag.parent)
@@ -61,6 +63,9 @@ public class DropSlot : MonoBehaviour, IDropHandler
                     {
                         EconomyManager.Instance.GastarOuro(custo);
                         draggable.parentAfterDrag = transform; // Oficializa a compra
+
+                        if (ServidorSAP.Instance != null)
+                            ServidorSAP.Instance.ComprarItemDireto(petArrastado.data.cod);
                     }
                     else
                     {
@@ -90,6 +95,8 @@ public class DropSlot : MonoBehaviour, IDropHandler
                         {
                             EconomyManager.Instance.GastarOuro(custo);
                             petNoSlot.ReceberBuff(petArrastado.data.poderBase);
+                            if (ServidorSAP.Instance != null)
+                                ServidorSAP.Instance.ComprarItemDireto(petArrastado.data.cod, "Buff Poder");
                             Destroy(objetoArrastado);
                         }
                     }
@@ -104,6 +111,8 @@ public class DropSlot : MonoBehaviour, IDropHandler
                         {
                             EconomyManager.Instance.GastarOuro(custo);
                             RealizarFusao(petNoSlot, objetoArrastado);
+                            if (ServidorSAP.Instance != null)
+                                ServidorSAP.Instance.ComprarItemDireto(petArrastado.data.cod, "Fusão");
                         }
                     }
                     else

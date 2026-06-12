@@ -6,6 +6,14 @@ using TMPro;
 
 public class ServidorSAP : MonoBehaviour
 {
+    public static ServidorSAP Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
     private string urlBase = "http://localhost:58747/WSJogador.asmx";
 
     public TMP_InputField inputNome;
@@ -182,6 +190,54 @@ public class ServidorSAP : MonoBehaviour
         formulario.AddField("nomeEquipe", nomeEquipe);
         formulario.AddField("vida", vida);
         formulario.AddField("rodada", rodada);
+
+        using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Deu ruim na conexão: " + www.error);
+            }
+            else
+            {
+                string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
+                Debug.Log("Resposta do Banco: " + respostaLimpa);
+            }
+        }
+    }
+
+
+    public void ComprarItemDireto(int idPetComida, string efeitoItem = "Nenhum")
+    {
+        if (idJogadorLogado > 0 && idPartidaAtual > 0)
+        {
+            Debug.Log("Enviando COMPRA pro Banco! ID: " + idPetComida);
+            StartCoroutine(RegistrarCompra(idJogadorLogado, idPartidaAtual, idPetComida, 1, false, efeitoItem));
+        }
+    }
+
+    public void VenderPetDireto(int idPetComida, int nivelAtual)
+    {
+        if (idJogadorLogado > 0 && idPartidaAtual > 0)
+        {
+            Debug.Log("Enviando VENDA pro Banco! ID: " + idPetComida);
+            StartCoroutine(RegistrarCompra(idJogadorLogado, idPartidaAtual, idPetComida, nivelAtual, true, "Nenhum"));
+        }
+    }
+
+    IEnumerator RegistrarCompra(int jogador, int partida, int petComida, int nivel, bool venda, string efeito)
+    {
+        string urlCompleta = urlBase + "/RegistrarCompra";
+
+        WWWForm formulario = new WWWForm();
+
+        formulario.AddField("jogador", jogador);
+        formulario.AddField("partida", partida);
+        formulario.AddField("petComida", petComida);
+        formulario.AddField("nivel", nivel);
+        formulario.AddField("venda", venda.ToString());
+        formulario.AddField("efeito", efeito);
 
         using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
         {
