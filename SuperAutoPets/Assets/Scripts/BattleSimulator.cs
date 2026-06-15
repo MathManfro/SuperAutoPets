@@ -39,34 +39,39 @@ public class BattleSimulator : MonoBehaviour
         panelLoja.SetActive(false);
         botaoRoletar.SetActive(false);
         botaoBatalha.SetActive(false);
-        panelInimigo.SetActive(true);
 
-        ServidorSAP.Instance.ChamarObterInimigo(rodadaAtual, (dadosBanco) =>
+        Debug.Log("Entrando na fila de Matchmaking...");
+
+        ServidorSAP.Instance.EntrarNaFilaDeEspera(rodadaAtual, (idInimigoAoVivo) =>
         {
+            panelInimigo.SetActive(true);
 
-            GetComponent<BotGenerator>().GerarEquipeInimiga(dadosBanco);
-
-            timePlayer.Clear();
-            timeInimigo.Clear();
-            poderesOriginais.Clear();
-
-            foreach (Transform slot in panelEquipePlayer)
+            ServidorSAP.Instance.ChamarObterInimigo(rodadaAtual, idInimigoAoVivo, (dadosBanco) =>
             {
-                if (slot.childCount > 0)
+                GetComponent<BotGenerator>().GerarEquipeInimiga(dadosBanco);
+
+                timePlayer.Clear();
+                timeInimigo.Clear();
+                poderesOriginais.Clear();
+
+                foreach (Transform slot in panelEquipePlayer)
                 {
-                    PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
-                    timePlayer.Add(pet);
-                    poderesOriginais[pet] = pet.poderAtual;
+                    if (slot.childCount > 0)
+                    {
+                        PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
+                        timePlayer.Add(pet);
+                        poderesOriginais[pet] = pet.poderAtual;
+                    }
                 }
-            }
 
-            foreach (Transform slot in panelEquipeInimigo)
-            {
-                if (slot.childCount > 0)
-                    timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
-            }
+                foreach (Transform slot in panelEquipeInimigo)
+                {
+                    if (slot.childCount > 0)
+                        timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
+                }
 
-            StartCoroutine(RotinaDeCombate());
+                StartCoroutine(RotinaDeCombate());
+            });
         });
     }
 

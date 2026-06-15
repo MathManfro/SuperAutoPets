@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6000936e7e400794896119e3d735f0da, type: 3}
   m_Name: Maca
   m_EditorClassIdentifier: Assembly-CSharp::EntityData
-  cod: 3
+  cod: 4
   nome: "Ma\xE7\xE3"
   poderBase: 1
   valor: 2

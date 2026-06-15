@@ -313,17 +313,18 @@ public class ServidorSAP : MonoBehaviour
         }
     }
 
-    public void ChamarObterInimigo(int rodada, Action<string> aoReceberDados)
+    public void ChamarObterInimigo(int rodada, int idInimigoAoVivo, Action<string> aoReceberDados)
     {
-        StartCoroutine(ObterEquipeInimigaCoroutine(rodada, aoReceberDados));
+        StartCoroutine(ObterEquipeInimigaCoroutine(rodada, idInimigoAoVivo, aoReceberDados));
     }
 
-    IEnumerator ObterEquipeInimigaCoroutine(int rodada, Action<string> aoReceberDados)
+    IEnumerator ObterEquipeInimigaCoroutine(int rodada, int idInimigoAoVivo, Action<string> aoReceberDados)
     {
         string urlCompleta = urlBase + "/ObterEquipeInimiga";
         WWWForm formulario = new WWWForm();
         formulario.AddField("minhaRodada", rodada);
-        formulario.AddField("meuId", idJogadorLogado);
+
+        formulario.AddField("idInimigo", idInimigoAoVivo);
 
         using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
         {
@@ -340,6 +341,48 @@ public class ServidorSAP : MonoBehaviour
                 Debug.Log("O time inimigo carregado do banco é composto pelos IDs: " + respostaLimpa);
                 aoReceberDados?.Invoke(respostaLimpa);
             }
+        }
+    }
+
+    public void EntrarNaFilaDeEspera(int rodada, Action<int> aoAcharInimigo)
+    {
+        StartCoroutine(LoopFilaDeEspera(rodada, aoAcharInimigo));
+    }
+
+    IEnumerator LoopFilaDeEspera(int rodada, Action<int> aoAcharInimigo)
+    {
+        string urlCompleta = urlBase + "/ProcurarPartidaAoVivo";
+        WWWForm formulario = new WWWForm();
+        formulario.AddField("meuId", idJogadorLogado);
+        formulario.AddField("minhaRodada", rodada);
+
+        bool achou = false;
+
+        while (!achou)
+        {
+            using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    string resposta = ExtrairTextoDoXML(www.downloadHandler.text);
+
+                    if (resposta.StartsWith("ACHOU:"))
+                    {
+                        int idInimigo = int.Parse(resposta.Split(':')[1]);
+                        Debug.Log(" OPONENTE ENCONTRADO AO VIVO! ID: " + idInimigo);
+                        achou = true;
+                        aoAcharInimigo?.Invoke(idInimigo);
+                    }
+                    else
+                    {
+                        Debug.Log("Aguardando oponente na rodada " + rodada + "...");
+                    }
+                }
+            }
+
+            if (!achou) yield return new WaitForSeconds(2f);
         }
     }
 }

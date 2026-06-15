@@ -6,7 +6,7 @@ public class BotGenerator : MonoBehaviour
     [Header("Configurações do Bot")]
     public Transform[] slotsInimigos;
     public List<EntityData> poolDePets;
-    public GameObject petPrefab;    
+    public GameObject petPrefab;
 
     public void GerarEquipeInimiga(string dadosDoServidor)
     {
@@ -14,6 +14,8 @@ public class BotGenerator : MonoBehaviour
         {
             if (slot.childCount > 0) Destroy(slot.GetChild(0).gameObject);
         }
+
+        Debug.Log("Tentando gerar equipe com os IDs: " + dadosDoServidor);
 
         string[] idsInimigos = dadosDoServidor.Split(',');
 
@@ -33,6 +35,10 @@ public class BotGenerator : MonoBehaviour
 
                     Draggable drag = novoInimigo.GetComponent<Draggable>();
                     if (drag != null) drag.enabled = false;
+                }
+                else
+                {
+                    Debug.LogWarning("ALERTA: O Banco mandou o ID " + idDoBanco + ", mas ele não existe na sua lista do Inspector!");
                 }
             }
         }
