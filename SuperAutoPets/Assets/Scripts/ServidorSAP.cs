@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -308,6 +309,36 @@ public class ServidorSAP : MonoBehaviour
             {
                 string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
                 Debug.Log("Resposta do Banco: " + respostaLimpa);
+            }
+        }
+    }
+
+    public void ChamarObterInimigo(int rodada, Action<string> aoReceberDados)
+    {
+        StartCoroutine(ObterEquipeInimigaCoroutine(rodada, aoReceberDados));
+    }
+
+    IEnumerator ObterEquipeInimigaCoroutine(int rodada, Action<string> aoReceberDados)
+    {
+        string urlCompleta = urlBase + "/ObterEquipeInimiga";
+        WWWForm formulario = new WWWForm();
+        formulario.AddField("minhaRodada", rodada);
+        formulario.AddField("meuId", idJogadorLogado);
+
+        using (UnityWebRequest www = UnityWebRequest.Post(urlCompleta, formulario))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning("Sem internet! Gerando bots genéricos.");
+                aoReceberDados?.Invoke("1,1");
+            }
+            else
+            {
+                string respostaLimpa = ExtrairTextoDoXML(www.downloadHandler.text);
+                Debug.Log("O time inimigo carregado do banco é composto pelos IDs: " + respostaLimpa);
+                aoReceberDados?.Invoke(respostaLimpa);
             }
         }
     }

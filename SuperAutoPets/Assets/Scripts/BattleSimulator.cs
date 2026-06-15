@@ -31,43 +31,43 @@ public class BattleSimulator : MonoBehaviour
 
     private void Start()
     {
-        // Garante que o jogo começa mostrando os valores certos na tela
         AtualizarBarraUI();
     }
 
     public void IniciarBatalha()
     {
-        GetComponent<BotGenerator>().GerarEquipeInimiga(rodadaAtual);
-
-        timePlayer.Clear();
-        timeInimigo.Clear();
-        poderesOriginais.Clear();
-
-        // 1. Transição de UI: Esconde a loja e ativa a arena
         panelLoja.SetActive(false);
         botaoRoletar.SetActive(false);
         botaoBatalha.SetActive(false);
         panelInimigo.SetActive(true);
 
-        // 2. Escaneia o seu time e SALVA o poder atual (com os buffs da maçã)
-        foreach (Transform slot in panelEquipePlayer)
+        ServidorSAP.Instance.ChamarObterInimigo(rodadaAtual, (dadosBanco) =>
         {
-            if (slot.childCount > 0)
+
+            GetComponent<BotGenerator>().GerarEquipeInimiga(dadosBanco);
+
+            timePlayer.Clear();
+            timeInimigo.Clear();
+            poderesOriginais.Clear();
+
+            foreach (Transform slot in panelEquipePlayer)
             {
-                PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
-                timePlayer.Add(pet);
-                poderesOriginais[pet] = pet.poderAtual; // Salva para "curar" depois da luta
+                if (slot.childCount > 0)
+                {
+                    PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
+                    timePlayer.Add(pet);
+                    poderesOriginais[pet] = pet.poderAtual;
+                }
             }
-        }
 
-        // 3. Escaneia o time do bot inimigo
-        foreach (Transform slot in panelEquipeInimigo)
-        {
-            if (slot.childCount > 0)
-                timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
-        }
+            foreach (Transform slot in panelEquipeInimigo)
+            {
+                if (slot.childCount > 0)
+                    timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
+            }
 
-        StartCoroutine(RotinaDeCombate());
+            StartCoroutine(RotinaDeCombate());
+        });
     }
 
     private IEnumerator RotinaDeCombate()
