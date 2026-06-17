@@ -30,7 +30,12 @@ public class ServidorSAP : MonoBehaviour
 
     private void Start()
     {
-        // Assim que o jogo abre, liga só o Login e esconde o resto!
+        QualitySettings.vSyncCount = 0;
+
+        Application.targetFrameRate = 15;
+
+        Application.runInBackground = true;
+
         telaLogin.SetActive(true);
         telaLobby.SetActive(false);
         telaJogoPrincipal.SetActive(false);
@@ -344,17 +349,18 @@ public class ServidorSAP : MonoBehaviour
         }
     }
 
-    public void EntrarNaFilaDeEspera(int rodada, Action<int> aoAcharInimigo)
+    public void EntrarNaFilaDeEspera(int rodada, string minhaFormacao, Action<string> aoAcharInimigo)
     {
-        StartCoroutine(LoopFilaDeEspera(rodada, aoAcharInimigo));
+        StartCoroutine(LoopFilaDeEspera(rodada, minhaFormacao, aoAcharInimigo));
     }
 
-    IEnumerator LoopFilaDeEspera(int rodada, Action<int> aoAcharInimigo)
+    IEnumerator LoopFilaDeEspera(int rodada, string minhaFormacao, Action<string> aoAcharInimigo)
     {
         string urlCompleta = urlBase + "/ProcurarPartidaAoVivo";
         WWWForm formulario = new WWWForm();
         formulario.AddField("meuId", idJogadorLogado);
         formulario.AddField("minhaRodada", rodada);
+        formulario.AddField("minhaFormacao", minhaFormacao);
 
         bool achou = false;
 
@@ -370,18 +376,14 @@ public class ServidorSAP : MonoBehaviour
 
                     if (resposta.StartsWith("ACHOU:"))
                     {
-                        int idInimigo = int.Parse(resposta.Split(':')[1]);
-                        Debug.Log(" OPONENTE ENCONTRADO AO VIVO! ID: " + idInimigo);
+                        string equipeInimiga = resposta.Substring(6);
+                        Debug.Log("OPONENTE AO VIVO! Equipe: " + equipeInimiga);
                         achou = true;
-                        aoAcharInimigo?.Invoke(idInimigo);
-                    }
-                    else
-                    {
-                        Debug.Log("Aguardando oponente na rodada " + rodada + "...");
+
+                        aoAcharInimigo?.Invoke(equipeInimiga);
                     }
                 }
             }
-
             if (!achou) yield return new WaitForSeconds(2f);
         }
     }

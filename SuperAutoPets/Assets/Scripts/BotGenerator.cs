@@ -8,37 +8,49 @@ public class BotGenerator : MonoBehaviour
     public List<EntityData> poolDePets;
     public GameObject petPrefab;
 
-    public void GerarEquipeInimiga(string dadosDoServidor)
+    public void GerarEquipeInimiga(string dadosCompletos)
     {
         foreach (Transform slot in slotsInimigos)
         {
             if (slot.childCount > 0) Destroy(slot.GetChild(0).gameObject);
         }
 
-        Debug.Log("Tentando gerar equipe com os IDs: " + dadosDoServidor);
+        Debug.Log("Lendo Fotografia do Inimigo: " + dadosCompletos);
 
-        string[] idsInimigos = dadosDoServidor.Split(',');
+        string[] petsInimigos = dadosCompletos.Split(',');
 
-        for (int i = 0; i < idsInimigos.Length; i++)
+        for (int i = 0; i < petsInimigos.Length; i++)
         {
-            if (i < slotsInimigos.Length && int.TryParse(idsInimigos[i], out int idDoBanco))
+            if (i < slotsInimigos.Length && !string.IsNullOrEmpty(petsInimigos[i]))
             {
-                EntityData sorteado = poolDePets.Find(pet => pet.cod == idDoBanco);
+                string[] infoPet = petsInimigos[i].Split('-');
 
-                if (sorteado != null)
+                if (infoPet.Length == 3 && int.TryParse(infoPet[0], out int idDoBanco))
                 {
-                    GameObject novoInimigo = Instantiate(petPrefab, slotsInimigos[i]);
-                    RectTransform rt = novoInimigo.GetComponent<RectTransform>();
-                    if (rt != null) { rt.localPosition = Vector3.zero; rt.localScale = Vector3.one; }
+                    EntityData sorteado = poolDePets.Find(pet => pet.cod == idDoBanco);
 
-                    novoInimigo.GetComponent<PetInstance>().Setup(sorteado);
+                    if (sorteado != null)
+                    {
+                        GameObject novoInimigo = Instantiate(petPrefab, slotsInimigos[i]);
+                        RectTransform rt = novoInimigo.GetComponent<RectTransform>();
+                        if (rt != null) { rt.localPosition = Vector3.zero; rt.localScale = Vector3.one; }
 
-                    Draggable drag = novoInimigo.GetComponent<Draggable>();
-                    if (drag != null) drag.enabled = false;
-                }
-                else
-                {
-                    Debug.LogWarning("ALERTA: O Banco mandou o ID " + idDoBanco + ", mas ele não existe na sua lista do Inspector!");
+                        PetInstance petInstance = novoInimigo.GetComponent<PetInstance>();
+                        petInstance.Setup(sorteado);
+
+                        petInstance.nivelAtual = int.Parse(infoPet[1]);
+                        petInstance.poderAtual = int.Parse(infoPet[2]);
+
+                        PetDisplay display = novoInimigo.GetComponent<PetDisplay>();
+                        if (display != null)
+                        {
+                            display.textoPoder.text = petInstance.poderAtual.ToString();
+                            if (display.textoNivel != null) display.textoNivel.text = "Lv." + petInstance.nivelAtual;
+                        }
+
+                        Draggable drag = novoInimigo.GetComponent<Draggable>();
+                        if (drag != null) drag.enabled = false;
+                    }
                 }
             }
         }

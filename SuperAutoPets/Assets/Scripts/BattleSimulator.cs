@@ -22,7 +22,6 @@ public class BattleSimulator : MonoBehaviour
     private List<PetInstance> timePlayer = new List<PetInstance>();
     private List<PetInstance> timeInimigo = new List<PetInstance>();
 
-    // Dicionário para salvar o poder correto do seu bicho antes da briga começar
     private Dictionary<PetInstance, int> poderesOriginais = new Dictionary<PetInstance, int>();
 
     [Header("Status do Jogador")]
@@ -40,38 +39,45 @@ public class BattleSimulator : MonoBehaviour
         botaoRoletar.SetActive(false);
         botaoBatalha.SetActive(false);
 
-        Debug.Log("Entrando na fila de Matchmaking...");
+        System.Collections.Generic.List<string> dadosDosMeusPets = new System.Collections.Generic.List<string>();
+        foreach (Transform slot in panelEquipePlayer)
+        {
+            if (slot.childCount > 0)
+            {
+                PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
+                dadosDosMeusPets.Add($"{pet.data.cod}-{pet.nivelAtual}-{pet.poderAtual}");
+            }
+        }
+        string minhaFormacaoPronta = string.Join(",", dadosDosMeusPets);
+        Debug.Log("Minha formação enviada pra internet: " + minhaFormacaoPronta);
 
-        ServidorSAP.Instance.EntrarNaFilaDeEspera(rodadaAtual, (idInimigoAoVivo) =>
+        ServidorSAP.Instance.EntrarNaFilaDeEspera(rodadaAtual, minhaFormacaoPronta, (equipeInimigaRecebida) =>
         {
             panelInimigo.SetActive(true);
 
-            ServidorSAP.Instance.ChamarObterInimigo(rodadaAtual, idInimigoAoVivo, (dadosBanco) =>
+            GetComponent<BotGenerator>().GerarEquipeInimiga(equipeInimigaRecebida);
+
+            timePlayer.Clear();
+            timeInimigo.Clear();
+            poderesOriginais.Clear();
+
+            foreach (Transform slot in panelEquipePlayer)
             {
-                GetComponent<BotGenerator>().GerarEquipeInimiga(dadosBanco);
-
-                timePlayer.Clear();
-                timeInimigo.Clear();
-                poderesOriginais.Clear();
-
-                foreach (Transform slot in panelEquipePlayer)
+                if (slot.childCount > 0)
                 {
-                    if (slot.childCount > 0)
-                    {
-                        PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
-                        timePlayer.Add(pet);
-                        poderesOriginais[pet] = pet.poderAtual;
-                    }
+                    PetInstance pet = slot.GetChild(0).GetComponent<PetInstance>();
+                    timePlayer.Add(pet);
+                    poderesOriginais[pet] = pet.poderAtual;
                 }
+            }
 
-                foreach (Transform slot in panelEquipeInimigo)
-                {
-                    if (slot.childCount > 0)
-                        timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
-                }
+            foreach (Transform slot in panelEquipeInimigo)
+            {
+                if (slot.childCount > 0)
+                    timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
+            }
 
-                StartCoroutine(RotinaDeCombate());
-            });
+            StartCoroutine(RotinaDeCombate());
         });
     }
 
@@ -92,26 +98,23 @@ public class BattleSimulator : MonoBehaviour
             petPlayer.poderAtual -= danoNoPlayer;
             petInimigo.poderAtual -= danoNoInimigo;
 
-            // Mostra o dano na UI (não deixa o texto mostrar número negativo)
             petPlayer.GetComponent<PetDisplay>().textoPoder.text = Mathf.Max(0, petPlayer.poderAtual).ToString();
             petInimigo.GetComponent<PetDisplay>().textoPoder.text = Mathf.Max(0, petInimigo.poderAtual).ToString();
 
             yield return new WaitForSeconds(0.8f);
 
-            // SE O SEU PET PADECER:
             if (petPlayer.poderAtual <= 0)
             {
                 GerenciadorDeHabilidades.ExecutarHabilidade(petPlayer, timePlayer, TipoGatilho.Ao_Desmaiar);
                 timePlayer.RemoveAt(0);
-                petPlayer.gameObject.SetActive(false); // APENAS ESCONDE! Não destrói o seu bicho permanentemente.
+                petPlayer.gameObject.SetActive(false);
             }
 
-            // SE O INIMIGO PADECER:
             if (petInimigo.poderAtual <= 0)
             {
                 GerenciadorDeHabilidades.ExecutarHabilidade(petInimigo, timeInimigo, TipoGatilho.Ao_Desmaiar);
                 timeInimigo.RemoveAt(0);
-                Destroy(petInimigo.gameObject); // O do bot pode destruir de verdade.
+                Destroy(petInimigo.gameObject);
             }
         }
 
@@ -120,7 +123,6 @@ public class BattleSimulator : MonoBehaviour
 
     private void FinalizarRodada()
     {
-        // Verifica as condições de fim de jogo
         if (timePlayer.Count > 0)
         {
             Debug.Log(" VITÓRIA! Seu time resistiu.");
@@ -128,7 +130,7 @@ public class BattleSimulator : MonoBehaviour
         else if (timeInimigo.Count > 0)
         {
             Debug.Log(" DERROTA! Você perdeu uma vida.");
-            vidasAtuais--; // Subtrai a vida aqui!
+            vidasAtuais--;
             if (vidasAtuais < 0) vidasAtuais = 0;
         }
         else
