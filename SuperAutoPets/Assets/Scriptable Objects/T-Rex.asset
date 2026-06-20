@@ -17,7 +17,7 @@ MonoBehaviour:
   poderBase: 6
   valor: 4
   icon: {fileID: 1441524144, guid: 5ce04d0bd3eae93409230908ae34964e, type: 3}
-  isFood: 1
+  isFood: 0
   tier: 6
   gatilho: 4
   forcaDaHabilidade: 2

@@ -6128,20 +6128,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shop_Manager
   poolDePets:
+  - {fileID: 11400000, guid: e032ed1079a48934d8acdcbd61a6dc03, type: 2}
+  - {fileID: 11400000, guid: 1703a5d7186556241953458bf92b39d0, type: 2}
   - {fileID: 11400000, guid: 2d59da6f84978254aaaf2276a2739f9c, type: 2}
+  - {fileID: 11400000, guid: 22bc1ee39e5e5d9429843d3beaaef18a, type: 2}
   - {fileID: 11400000, guid: 99448da69fd44df409c200726a84e346, type: 2}
+  - {fileID: 11400000, guid: 25e42d97db933a94899723c4ae9e70da, type: 2}
+  - {fileID: 11400000, guid: 29e2f7fa80aee664593b2fad8286eecd, type: 2}
   - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
-  - {fileID: 11400000, guid: 485ff15cb6ded0e4cb26bf9314f5329d, type: 2}
+  - {fileID: 11400000, guid: ebe651cb21e789b47bebf2f18f61dc18, type: 2}
+  - {fileID: 11400000, guid: ee88cab0ada8e8d46a73d63728af5e42, type: 2}
   poolDeComidas:
+  - {fileID: 11400000, guid: 8ed84d954a1a4d84dbbd60c8374228e4, type: 2}
   - {fileID: 11400000, guid: 22084e6847aac3148a145eaf8899c98a, type: 2}
-  - {fileID: 11400000, guid: 22084e6847aac3148a145eaf8899c98a, type: 2}
-  - {fileID: 11400000, guid: 22084e6847aac3148a145eaf8899c98a, type: 2}
+  - {fileID: 11400000, guid: 1efd06746560ea946a84ae8f255b7b12, type: 2}
   slotsDePets:
   - {fileID: 1179403314}
   - {fileID: 1561419063}
