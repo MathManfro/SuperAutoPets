@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // Criamos a lista de Momentos (Gatilhos) possíveis
-public enum TipoGatilho { Nenhum, Ao_Desmaiar, Ao_Vender, Ao_Subir_Nivel }
+public enum TipoGatilho { Nenhum, Ao_Desmaiar, Ao_Vender, Ao_Subir_Nivel, Inicio_Da_Rodada, Ao_Aumentar_Tier, Inicio_Da_Batalha, Fim_Da_Batalha }
 
 [CreateAssetMenu(fileName = "NovaEntidade", menuName = "SAP/Entidade")]
 public class EntityData : ScriptableObject

@@ -18,6 +18,6 @@ MonoBehaviour:
   valor: 3
   icon: {fileID: 1691657245, guid: 5ce04d0bd3eae93409230908ae34964e, type: 3}
   isFood: 1
-  tier: 1
-  gatilho: 0
+  tier: 4
+  gatilho: 6
   forcaDaHabilidade: 0

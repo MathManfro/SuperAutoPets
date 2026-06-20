@@ -77,6 +77,15 @@ public class BattleSimulator : MonoBehaviour
                     timeInimigo.Add(slot.GetChild(0).GetComponent<PetInstance>());
             }
 
+            foreach (PetInstance pet in timePlayer)
+            {
+                GerenciadorDeHabilidades.ExecutarHabilidade(pet, timePlayer, TipoGatilho.Inicio_Da_Batalha, timeInimigo);
+            }
+            foreach (PetInstance pet in timeInimigo)
+            {
+                GerenciadorDeHabilidades.ExecutarHabilidade(pet, timeInimigo, TipoGatilho.Inicio_Da_Batalha, timePlayer);
+            }
+
             StartCoroutine(RotinaDeCombate());
         });
     }
@@ -177,7 +186,27 @@ public class BattleSimulator : MonoBehaviour
                 {
                     pet.poderAtual = poderesOriginais[pet];
                 }
-                pet.GetComponent<PetDisplay>().Setup(pet.data);
+                pet.GetComponent<PetDisplay>().Setup(pet.data, pet.nivelAtual);
+            }
+        }
+
+        List<PetInstance> equipeAtual = new List<PetInstance>();
+        foreach (Transform slot in panelEquipePlayer)
+        {
+            if (slot.childCount > 0) equipeAtual.Add(slot.GetChild(0).GetComponent<PetInstance>());
+        }
+
+        foreach (PetInstance pet in equipeAtual)
+        {
+            GerenciadorDeHabilidades.ExecutarHabilidade(pet, equipeAtual, TipoGatilho.Fim_Da_Batalha);
+        }
+
+        if (rodadaAtual == 3 || rodadaAtual == 5 || rodadaAtual == 7 || rodadaAtual == 9 || rodadaAtual == 11)
+        {
+            Debug.Log(" ATENÇÃO: O Tier da loja aumentou nesta rodada!");
+            foreach (PetInstance pet in equipeAtual)
+            {
+                GerenciadorDeHabilidades.ExecutarHabilidade(pet, equipeAtual, TipoGatilho.Ao_Aumentar_Tier);
             }
         }
 

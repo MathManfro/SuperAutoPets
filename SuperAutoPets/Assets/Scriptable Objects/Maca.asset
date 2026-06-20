@@ -15,7 +15,7 @@ MonoBehaviour:
   cod: 11
   nome: "Ma\xE7\xE3"
   poderBase: 1
-  valor: 2
+  valor: 3
   icon: {fileID: -4218819425404330313, guid: 0d95cc1bbecfccb4d80bcb7ff7495276, type: 3}
   isFood: 1
   tier: 1

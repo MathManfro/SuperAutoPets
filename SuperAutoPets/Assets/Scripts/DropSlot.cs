@@ -14,7 +14,6 @@ public class DropSlot : MonoBehaviour, IDropHandler
 
         if (draggable != null && petArrastado != null)
         {
-            // Descobre se o pet/comida veio da loja ou se o jogador só está movendo ele dentro da equipe
             bool veioDaLoja = true;
             if (draggable.parentAfterDrag != null && draggable.parentAfterDrag.GetComponent<DropSlot>() != null)
             {
@@ -22,11 +21,11 @@ public class DropSlot : MonoBehaviour, IDropHandler
             }
 
             // ==========================================
-            // NOVA REGRA: VENDA DE PET (Arrastou da equipe para um slot da loja)
+            // REGRA: VENDA DE PET 
             // ==========================================
             if (!isTeamSlot && !veioDaLoja)
             {
-                int ouroGanho = petArrastado.nivelAtual; // Ganha ouro = nível do pet
+                int ouroGanho = petArrastado.nivelAtual;
                 EconomyManager.Instance.GanharOuro(ouroGanho);
                 Debug.Log($" {petArrastado.data.nome} vendido na loja por {ouroGanho} de ouro!");
                 if (ServidorSAP.Instance != null)
@@ -39,8 +38,8 @@ public class DropSlot : MonoBehaviour, IDropHandler
                 }
                 GerenciadorDeHabilidades.ExecutarHabilidade(petArrastado, equipeAtual, TipoGatilho.Ao_Vender);
 
-                Destroy(objetoArrastado); // Destrói o pet
-                return; // Encerra o código aqui para não tentar colocar ele no slot
+                Destroy(objetoArrastado);
+                return;
             }
 
             // ==========================================
@@ -48,21 +47,19 @@ public class DropSlot : MonoBehaviour, IDropHandler
             // ==========================================
             if (transform.childCount == 0)
             {
-                // A comida não pode morar num slot vazio!
                 if (petArrastado.data.isFood)
                 {
                     Debug.Log("Comida não pode ocupar espaço na equipe!");
-                    return; // Cancela a ação
+                    return;
                 }
 
-                // Se for pet e o slot for da equipe, verifica a grana
                 if (isTeamSlot && veioDaLoja)
                 {
                     int custo = (int)petArrastado.data.valor;
                     if (EconomyManager.Instance.PodeGastar(custo))
                     {
                         EconomyManager.Instance.GastarOuro(custo);
-                        draggable.parentAfterDrag = transform; // Oficializa a compra
+                        draggable.parentAfterDrag = transform;
 
                         if (ServidorSAP.Instance != null)
                             ServidorSAP.Instance.ComprarItemDireto(petArrastado.data.cod);
@@ -74,7 +71,7 @@ public class DropSlot : MonoBehaviour, IDropHandler
                 }
                 else
                 {
-                    draggable.parentAfterDrag = transform; // Movimentação livre
+                    draggable.parentAfterDrag = transform;
                 }
             }
             // ==========================================
@@ -82,10 +79,9 @@ public class DropSlot : MonoBehaviour, IDropHandler
             // ==========================================
             else if (transform.childCount == 1 && isTeamSlot)
             {
-                // AGORA SIM o petNoSlot existe!
                 PetInstance petNoSlot = transform.GetChild(0).GetComponent<PetInstance>();
 
-                // A) É COMIDA? (Dá o buff de poder e destrói a maçã)
+                // A) É COMIDA?
                 if (petArrastado.data.isFood)
                 {
                     if (veioDaLoja)
@@ -94,14 +90,18 @@ public class DropSlot : MonoBehaviour, IDropHandler
                         if (EconomyManager.Instance.PodeGastar(custo))
                         {
                             EconomyManager.Instance.GastarOuro(custo);
+
+                            // O jogo lê o "Poder Base" que você configurou no Inspector da comida!
                             petNoSlot.ReceberBuff(petArrastado.data.poderBase);
+
                             if (ServidorSAP.Instance != null)
                                 ServidorSAP.Instance.ComprarItemDireto(petArrastado.data.cod, "Buff Poder");
+
                             Destroy(objetoArrastado);
                         }
                     }
                 }
-                // B) É PET IGUAL? (Faz a fusão e sobe de nível)
+                // B) É PET IGUAL? (Fusão Clássica)
                 else if (petNoSlot.data.cod == petArrastado.data.cod)
                 {
                     if (veioDaLoja)
@@ -124,17 +124,25 @@ public class DropSlot : MonoBehaviour, IDropHandler
         }
     }
 
-    // A função de fusão que estava faltando no seu print fica aqui embaixo!
     private void RealizarFusao(PetInstance petBase, GameObject petSacrificado)
     {
         petBase.SubirNivel();
-        
+
         List<PetInstance> equipeAtual = new List<PetInstance>();
         foreach (Transform slot in transform.parent)
         {
             if (slot.childCount > 0) equipeAtual.Add(slot.GetChild(0).GetComponent<PetInstance>());
         }
+
         GerenciadorDeHabilidades.ExecutarHabilidade(petBase, equipeAtual, TipoGatilho.Ao_Subir_Nivel);
+
+        foreach (PetInstance aliado in equipeAtual)
+        {
+            if (aliado != petBase && aliado != null && aliado.data.nome == "Água-viva")
+            {
+                GerenciadorDeHabilidades.ExecutarHabilidade(aliado, equipeAtual, TipoGatilho.Ao_Subir_Nivel);
+            }
+        }
 
         Destroy(petSacrificado);
     }
