@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6000936e7e400794896119e3d735f0da, type: 3}
-  m_Name: Maca
+  m_Name: Queijo
   m_EditorClassIdentifier: Assembly-CSharp::EntityData
-  cod: 11
-  nome: "Ma\xE7\xE3"
-  poderBase: 1
-  valor: 2
-  icon: {fileID: -4218819425404330313, guid: 0d95cc1bbecfccb4d80bcb7ff7495276, type: 3}
+  cod: 13
+  nome: Queijo
+  poderBase: 3
+  valor: 4
+  icon: {fileID: 1279112941, guid: 0d95cc1bbecfccb4d80bcb7ff7495276, type: 3}
   isFood: 1
-  tier: 1
+  tier: 3
   gatilho: 0
   forcaDaHabilidade: 0
